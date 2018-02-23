@@ -27,6 +27,7 @@ type States struct {
 	direction    int
 	HallRequests [NUMB_FLOOR][NUMB_HALL_BUTTONS]int
 	CabRequests  [NUMB_FLOOR]int
+	isAlive      bool
 }
 
 var CurrState States

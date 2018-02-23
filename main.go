@@ -50,7 +50,7 @@ func main() {
 			elevio.SetButtonLamp(button.Button, button.Floor, true) //don't do this here later
 
 		case externalState := <-stateRecCh:
-			fmt.Println(externalState.HallRequests)
+			fmt.Println("RECEIVED UPDATE: ", externalState)
 		}
 	}
 }
