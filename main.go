@@ -15,7 +15,7 @@ func main() {
 
 	//Initialize the hardware and ID
 	id := network.Init()
-	states.LocalState.Id = id
+	states.Init(id)
 	elevio.Init("localhost:15657", states.NUMB_FLOOR)
 
 	var dir elevio.MotorDirection = elevio.MD_Up
@@ -53,7 +53,7 @@ func main() {
 	go bcast.Transmitter(20014, statesToNetwork)
 	go bcast.Receiver(20014, stateRecCh)
 
-	//go states.UpdateExternalState(stateRecCh)
+	go states.UpdateExternalState(stateRecCh)
 
 	for {
 		select {
@@ -62,8 +62,8 @@ func main() {
 			//stateTransCh <- states.CurrState
 			elevio.SetButtonLamp(button.Button, button.Floor, true) //don't do this here later
 
-		case externalState := <-stateRecCh:
-			fmt.Println("RECEIVED UPDATE: ", externalState)
+		//case externalState := <-stateRecCh:
+			//fmt.Println("RECEIVED UPDATE: ", externalState)
 		}
 	}
 }

@@ -22,22 +22,32 @@ const (
 // Define our states
 // should probably move this thing
 type States struct {
-	Id           string 
+	id           string 
 	behaviour    int
 	floor        int
 	direction    int
-	HallRequests [NUMB_FLOOR][NUMB_HALL_BUTTONS]int
-	CabRequests  [NUMB_FLOOR]int
+	hallRequests [NUMB_FLOOR][NUMB_HALL_BUTTONS]int
+	cabRequests  [NUMB_FLOOR]int
 	isAlive      bool
 }
 
 var LocalState States
 
+func Init(id string){
+	LocalState.id = id;
+	LocalState.behaviour = MOVING;
+	LocalState.direction = UP;
+}
+
+
+
+
+
 func UpdateButtonState(button elevio.ButtonEvent) {
 	if button.Button == elevio.ButtonType(2) {
-		LocalState.CabRequests[button.Floor] = 1
+		LocalState.cabRequests[button.Floor] = 1
 	} else {
-		LocalState.HallRequests[button.Floor][button.Button] = 1
+		LocalState.hallRequests[button.Floor][button.Button] = 1
 	}
 	//fmt.Println("hallRequessts: ", LocalState.HallRequests)
 	//fmt.Println("CabRequests: ", LocalState.CabRequests)
