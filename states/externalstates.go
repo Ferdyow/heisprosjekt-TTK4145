@@ -18,7 +18,7 @@ var externalStateMap = make(map[string]States)
 func ManagePeers(PeerUpdateCh <-chan peers.PeerUpdate){
 	for{
 		PeerUpdate := <- PeerUpdateCh
-		if  len(PeerUpdate.New) != 0 && PeerUpdate.New != LocalState.id{
+		if  len(PeerUpdate.New) != 0 && PeerUpdate.New != LocalState.Id{
 			var newState States
 			externalStateMap[PeerUpdate.New] = newState;
 		}
@@ -33,9 +33,13 @@ func ManagePeers(PeerUpdateCh <-chan peers.PeerUpdate){
 
 //set the states
 func UpdateExternalState(externalUpdateCh <-chan States){
+	var id string
+	var update States
 	for{
-		update := <- externalUpdateCh
-		id := update.id
+		update = <- externalUpdateCh
+		id = update.Id
+		fmt.Println(update)
+		fmt.Println("ID: ", id)
 		if _, ok := externalStateMap[id]; ok {
 			externalStateMap[id] = update
 			fmt.Println("external states updated: ", externalStateMap)

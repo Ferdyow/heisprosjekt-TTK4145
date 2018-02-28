@@ -2,7 +2,7 @@ package states
 
 import (
 	"../elevio"
-	//"fmt"
+	"fmt"
 	"time"
 )
 
@@ -22,7 +22,7 @@ const (
 // Define our states
 // should probably move this thing
 type States struct {
-	id           string 
+	Id           string 
 	behaviour    int
 	floor        int
 	direction    int
@@ -34,9 +34,10 @@ type States struct {
 var LocalState States
 
 func Init(id string){
-	LocalState.id = id;
+	LocalState.Id = id;
 	LocalState.behaviour = MOVING;
 	LocalState.direction = UP;
+	//fmt.Println("LocalState: ", LocalState)
 }
 
 
@@ -58,7 +59,8 @@ func SendStatesOnInterval(statesToNetworkChan chan<- States){
 	for{
 		select{
 		case <- tick.C:
-			statesToNetworkChan <- LocalState	
+			fmt.Println("Localstate:", LocalState)
+			statesToNetworkChan <- LocalState
 		}
 	}	
 }
