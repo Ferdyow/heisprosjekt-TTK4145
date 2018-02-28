@@ -23,20 +23,20 @@ const (
 // should probably move this thing
 type States struct {
 	Id           string 
-	behaviour    int
-	floor        int
-	direction    int
-	hallRequests [NUMB_FLOOR][NUMB_HALL_BUTTONS]int
-	cabRequests  [NUMB_FLOOR]int
-	isAlive      bool
+	Behaviour    int
+	Floor        int
+	Direction    int
+	HallRequests [NUMB_FLOOR][NUMB_HALL_BUTTONS]int
+	CabRequests  [NUMB_FLOOR]int
+	IsAlive      bool
 }
 
 var LocalState States
 
 func Init(id string){
 	LocalState.Id = id;
-	LocalState.behaviour = MOVING;
-	LocalState.direction = UP;
+	LocalState.Behaviour = MOVING;
+	LocalState.Direction = UP;
 	//fmt.Println("LocalState: ", LocalState)
 }
 
@@ -46,16 +46,16 @@ func Init(id string){
 
 func UpdateButtonState(button elevio.ButtonEvent) {
 	if button.Button == elevio.ButtonType(2) {
-		LocalState.cabRequests[button.Floor] = 1
+		LocalState.CabRequests[button.Floor] = 1
 	} else {
-		LocalState.hallRequests[button.Floor][button.Button] = 1
+		LocalState.HallRequests[button.Floor][button.Button] = 1
 	}
 	//fmt.Println("hallRequessts: ", LocalState.HallRequests)
 	//fmt.Println("CabRequests: ", LocalState.CabRequests)
 }
 
 func SendStatesOnInterval(statesToNetworkChan chan<- States){
-	tick := time.NewTicker(100*time.Millisecond)
+	tick := time.NewTicker(200*time.Millisecond)
 	for{
 		select{
 		case <- tick.C:

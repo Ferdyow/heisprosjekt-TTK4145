@@ -39,10 +39,12 @@ func UpdateExternalState(externalUpdateCh <-chan States){
 		update = <- externalUpdateCh
 		id = update.Id
 		fmt.Println(update)
-		fmt.Println("ID: ", id)
+		
 		if _, ok := externalStateMap[id]; ok {
 			externalStateMap[id] = update
 			fmt.Println("external states updated: ", externalStateMap)
+		} else{
+			fmt.Println("local states reverb: ", update)
 		}
 	}
 }

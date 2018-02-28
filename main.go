@@ -56,7 +56,6 @@ func main() {
 	go states.UpdateExternalState(stateRecCh)
 
 	for {
-		fmt.Println("MAIN: ", states.LocalState)
 		select {
 		case button := <-ButtonPressedCh:
 			states.UpdateButtonState(button)
