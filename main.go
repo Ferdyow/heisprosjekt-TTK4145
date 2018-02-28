@@ -2,7 +2,7 @@ package main
 
 import (
 	"./elevio"
-	"./localstate"
+	"./states"
 	"./network"
 	"./network/bcast"
 	//"./network/localip"
@@ -13,12 +13,19 @@ import (
 func main() {
 	fmt.Println("Hello")
 
+
+
 	//Initialize the hardware and ID
 	id := network.Init()
-	elevio.Init("localhost:15657", localstate.NUMB_FLOOR)
+	elevio.Init("localhost:15657", states.NUMB_FLOOR)
 
 	var dir elevio.MotorDirection = elevio.MD_Up
-	fmt.Println(dir)
+	fmt.Println("direction: ", dir)
+
+	//Make a channel to send states to the network
+	statesToNetwork := make(chan states.States)
+
+	go states.SendStatesOnInterval(statesToNetwork)
 
 	//Set up channels
 	ButtonPressedCh := make(chan elevio.ButtonEvent)
@@ -29,28 +36,29 @@ func main() {
 	// This could be used to signal that we are somehow "unavailable".
 	peerTxEnable := make(chan bool)
 
-	go peers.Transmitter(15647, id, peerTxEnable)
-	go peers.Receiver(15647, peerUpdateCh)
+	go peers.Transmitter(30014, id, peerTxEnable)
+	go peers.Receiver(30014, peerUpdateCh)
 	go elevio.PollButtons(ButtonPressedCh)
 
 	// We make channels for sending and receiving our custom data types
-	stateTransCh := make(chan localstate.States)
-	stateRecCh := make(chan localstate.States)
+	stateRecCh := make(chan states.States)
 	// ... and start the transmitter/receiver pair on some port
 	// These functions can take any number of channels! It is also possible to
 	//  start multiple transmitters/receivers on the same port.
-	go bcast.Transmitter(16569, stateTransCh)
-	go bcast.Receiver(16569, stateRecCh)
+	go bcast.Transmitter(20014, statesToNetwork)
+	go bcast.Receiver(20014, stateRecCh)
 
 	for {
 		select {
 		case button := <-ButtonPressedCh:
-			localstate.UpdateButtonState(button)
-			stateTransCh <- localstate.CurrState
+			states.UpdateButtonState(button)
+			//stateTransCh <- states.CurrState
 			elevio.SetButtonLamp(button.Button, button.Floor, true) //don't do this here later
 
 		case externalState := <-stateRecCh:
-			fmt.Println("RECEIVED UPDATE: ", externalState)
+			//fmt.Println("RECEIVED UPDATE: ", externalState)
+		case peerUpdate := <- peerUpdateCh:
+			fmt.Println("RECEIVED PEER GREETING OR SOMETHING:", peerUpdate)
 		}
 	}
 }

@@ -38,3 +38,5 @@ func SetId() {
 		id = fmt.Sprintf("peer-%s-%d", localIP, os.Getpid())
 	}
 }
+
+
