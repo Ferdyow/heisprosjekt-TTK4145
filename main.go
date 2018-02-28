@@ -61,8 +61,6 @@ func main() {
 
 		case externalState := <-stateRecCh:
 			fmt.Println("RECEIVED UPDATE: ", externalState)
-		case peerUpdate := <- peerUpdateCh:
-			fmt.Println("RECEIVED PEER GREETING OR SOMETHING:", peerUpdate)
 		}
 	}
 }

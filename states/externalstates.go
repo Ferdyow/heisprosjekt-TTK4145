@@ -3,19 +3,21 @@ package states
 import (
 	//"../elevio"
 	"fmt"
-	//"time"
+	"time"
 	"../network/peers"
 )
 
 
 //Sorted by ID, contains external states
-var externalStateMap map[string]States
-//externalStateMap := make(map[string]states)
+var externalStateMap = make(map[string]States)
+
+
+
 
 //Function that adds and initializes a peer
 func ManagePeers(PeerUpdateCh <-chan peers.PeerUpdate){
 	PeerUpdate := <- PeerUpdateCh
-	if  PeerUpdate.New != "" && PeerUpdate.New != localState.id{
+	if  len(PeerUpdate.New) != 0 && PeerUpdate.New != localState.id{
 		var newState States
 		externalStateMap[PeerUpdate.New] = newState;
 	}
@@ -24,6 +26,8 @@ func ManagePeers(PeerUpdateCh <-chan peers.PeerUpdate){
 			delete(externalStateMap, id)
 		}
 	}
+	fmt.Println("HEEEEEEEEEEEEEEEEEEEELLLLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
 	fmt.Println(externalStateMap)
+	time.Sleep(1*time.Second)
 
 }
