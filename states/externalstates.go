@@ -31,20 +31,18 @@ func ManagePeers(PeerUpdateCh <-chan peers.PeerUpdate){
 	}
 }
 
-//set the states
+//set the states | there are some timing issues here |
 func UpdateExternalState(externalUpdateCh <-chan States){
 	var id string
 	var update States
 	for{
 		update = <- externalUpdateCh
 		id = update.Id
-		fmt.Println(update)
-		
 		if _, ok := externalStateMap[id]; ok {
 			externalStateMap[id] = update
-			fmt.Println("external states updated: ", externalStateMap)
-		} else{
-			fmt.Println("local states reverb: ", update)
+			for _, value := range externalStateMap{
+				fmt.Println("external states:\t", value, "\n\n")
+		     }
 		}
 	}
 }

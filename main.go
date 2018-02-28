@@ -23,27 +23,30 @@ func main() {
 
 	//Make a channel to send states to the network
 	statesToNetwork := make(chan states.States)
+	
+	go states.SendStatesOnInterval(statesToNetwork) // Puts states on the channel 
+	go bcast.Transmitter(20014, statesToNetwork) //send states when they are received on channel
 
-	go states.SendStatesOnInterval(statesToNetwork)
 
-	//Set up channels
+
 	ButtonPressedCh := make(chan elevio.ButtonEvent)
+	go elevio.PollButtons(ButtonPressedCh)
+
+
 	// We make a channel for receiving updates on the id's of the peers that are
 	//  alive on the network
 	peerUpdateCh := make(chan peers.PeerUpdate)
+	go peers.Receiver(30014, peerUpdateCh)
+	go states.ManagePeers(peerUpdateCh) //Update peers when an update is received
+
 	// We can disable/enable the transmitter after it has been started.
 	// This could be used to signal that we are somehow "unavailable".
-	peerTxEnable := make(chan bool)
-
-
-
+	peerTransmitEnable := make(chan bool)
+	go peers.Transmitter(30014, id, peerTransmitEnable)
+	
 	
 
-	go peers.Transmitter(30014, id, peerTxEnable)
-	go peers.Receiver(30014, peerUpdateCh)
-	go elevio.PollButtons(ButtonPressedCh)
-
-	go states.ManagePeers(peerUpdateCh)
+	
 
 	// We make channels for sending and receiving our custom data types
 	stateRecCh := make(chan states.States)

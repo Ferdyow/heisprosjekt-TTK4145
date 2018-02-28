@@ -59,7 +59,7 @@ func SendStatesOnInterval(statesToNetworkChan chan<- States){
 	for{
 		select{
 		case <- tick.C:
-			fmt.Println("Localstate:", LocalState)
+			fmt.Println("Localstate:\t\t", LocalState)
 			statesToNetworkChan <- LocalState
 		}
 	}	
