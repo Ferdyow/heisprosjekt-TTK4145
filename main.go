@@ -13,10 +13,9 @@ import (
 func main() {
 	fmt.Println("Hello")
 
-
-
 	//Initialize the hardware and ID
 	id := network.Init()
+	states.LocalState.Id = id
 	elevio.Init("localhost:15657", states.NUMB_FLOOR)
 
 	var dir elevio.MotorDirection = elevio.MD_Up
@@ -38,11 +37,13 @@ func main() {
 
 
 
-	go states.ManagePeers(peerUpdateCh)
+	
 
 	go peers.Transmitter(30014, id, peerTxEnable)
 	go peers.Receiver(30014, peerUpdateCh)
 	go elevio.PollButtons(ButtonPressedCh)
+
+	go states.ManagePeers(peerUpdateCh)
 
 	// We make channels for sending and receiving our custom data types
 	stateRecCh := make(chan states.States)
@@ -51,6 +52,8 @@ func main() {
 	//  start multiple transmitters/receivers on the same port.
 	go bcast.Transmitter(20014, statesToNetwork)
 	go bcast.Receiver(20014, stateRecCh)
+
+	//go states.UpdateExternalState(stateRecCh)
 
 	for {
 		select {

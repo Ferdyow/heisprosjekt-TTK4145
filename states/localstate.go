@@ -2,7 +2,7 @@ package states
 
 import (
 	"../elevio"
-	"fmt"
+	//"fmt"
 	"time"
 )
 
@@ -22,7 +22,7 @@ const (
 // Define our states
 // should probably move this thing
 type States struct {
-	id           string
+	Id           string 
 	behaviour    int
 	floor        int
 	direction    int
@@ -31,16 +31,16 @@ type States struct {
 	isAlive      bool
 }
 
-var localState States
+var LocalState States
 
 func UpdateButtonState(button elevio.ButtonEvent) {
 	if button.Button == elevio.ButtonType(2) {
-		localState.CabRequests[button.Floor] = 1
+		LocalState.CabRequests[button.Floor] = 1
 	} else {
-		localState.HallRequests[button.Floor][button.Button] = 1
+		LocalState.HallRequests[button.Floor][button.Button] = 1
 	}
-	fmt.Println("hallRequessts: ", localState.HallRequests)
-	fmt.Println("CabRequests: ", localState.CabRequests)
+	//fmt.Println("hallRequessts: ", LocalState.HallRequests)
+	//fmt.Println("CabRequests: ", LocalState.CabRequests)
 }
 
 func SendStatesOnInterval(statesToNetworkChan chan<- States){
@@ -48,7 +48,7 @@ func SendStatesOnInterval(statesToNetworkChan chan<- States){
 	for{
 		select{
 		case <- tick.C:
-			statesToNetworkChan <- localState	
+			statesToNetworkChan <- LocalState	
 		}
 	}	
 }
