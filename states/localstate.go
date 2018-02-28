@@ -31,24 +31,24 @@ type States struct {
 	isAlive      bool
 }
 
-var CurrState States
+var localState States
 
 func UpdateButtonState(button elevio.ButtonEvent) {
 	if button.Button == elevio.ButtonType(2) {
-		CurrState.CabRequests[button.Floor] = 1
+		localState.CabRequests[button.Floor] = 1
 	} else {
-		CurrState.HallRequests[button.Floor][button.Button] = 1
+		localState.HallRequests[button.Floor][button.Button] = 1
 	}
-	fmt.Println("hallRequessts: ", CurrState.HallRequests)
-	fmt.Println("CabRequests: ", CurrState.CabRequests)
+	fmt.Println("hallRequessts: ", localState.HallRequests)
+	fmt.Println("CabRequests: ", localState.CabRequests)
 }
 
 func SendStatesOnInterval(statesToNetworkChan chan<- States){
-	tick := time.NewTicker(100*time.Millisecond);
+	tick := time.NewTicker(100*time.Millisecond)
 	for{
 		select{
 		case <- tick.C:
-			statesToNetworkChan <- CurrState;	
+			statesToNetworkChan <- localState	
 		}
 	}	
 }

@@ -36,6 +36,10 @@ func main() {
 	// This could be used to signal that we are somehow "unavailable".
 	peerTxEnable := make(chan bool)
 
+
+
+	go states.ManagePeers(peerUpdateCh)
+
 	go peers.Transmitter(30014, id, peerTxEnable)
 	go peers.Receiver(30014, peerUpdateCh)
 	go elevio.PollButtons(ButtonPressedCh)
@@ -56,7 +60,7 @@ func main() {
 			elevio.SetButtonLamp(button.Button, button.Floor, true) //don't do this here later
 
 		case externalState := <-stateRecCh:
-			//fmt.Println("RECEIVED UPDATE: ", externalState)
+			fmt.Println("RECEIVED UPDATE: ", externalState)
 		case peerUpdate := <- peerUpdateCh:
 			fmt.Println("RECEIVED PEER GREETING OR SOMETHING:", peerUpdate)
 		}
