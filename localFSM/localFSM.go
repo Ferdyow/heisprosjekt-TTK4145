@@ -18,11 +18,11 @@ func handleOrderAssigned(buttonCh <-chan def.Button, state states.States){
 		case def.DOOR_OPEN:
 			if state.Floor == button.Floor{
 				//Restart the timer
-			} else {
+			} else{
 				//set the fucking order
 			}
 			case 
 
 		}
 	}
-}
+}wffw
