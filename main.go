@@ -8,7 +8,9 @@ import (
 	//"./network/localip"
 	"./network/peers"
 	"fmt"
+	"./def"
 )
+
 
 func main() {
 	fmt.Println("Hello")
@@ -16,7 +18,7 @@ func main() {
 	//Initialize the hardware and ID
 	id := network.Init()
 	states.Init(id)
-	elevio.Init("localhost:15657", states.NUMB_FLOOR)
+	elevio.Init("localhost:15657", def.NUMB_FLOOR)
 
 	var dir elevio.MotorDirection = elevio.MD_Up
 	fmt.Println("direction: ", dir)

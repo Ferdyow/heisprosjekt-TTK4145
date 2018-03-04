@@ -4,20 +4,10 @@ import (
 	"../elevio"
 	"fmt"
 	"time"
+	"../def"
 )
 
-const (
-	NUMB_FLOOR        = 4
-	NUMB_HALL_BUTTONS = 2
 
-	IDLE      = 0
-	MOVING    = 1
-	DOOR_OPEN = 2
-
-	DOWN = -1
-	STOP = 0
-	UP   = 1
-)
 
 // Define our states
 // should probably move this thing
@@ -26,8 +16,9 @@ type States struct {
 	Behaviour    int
 	Floor        int
 	Direction    int
-	HallRequests [NUMB_FLOOR][NUMB_HALL_BUTTONS]int
-	CabRequests  [NUMB_FLOOR]int
+	HallRequests [def.NUMB_FLOOR][def.NUMB_HALL_BUTTONS]int
+	CabRequests  [def.NUMB_FLOOR]int
+	AcceptedOrders [def.NUMB_FLOOR][def.NUMB_BUTTONS]bool
 	IsAlive      bool
 }
 
@@ -35,8 +26,8 @@ var LocalState States
 
 func Init(id string){
 	LocalState.Id = id;
-	LocalState.Behaviour = MOVING;
-	LocalState.Direction = UP;
+	LocalState.Behaviour = def.MOVING;
+	LocalState.Direction = def.UP;
 	//fmt.Println("LocalState: ", LocalState)
 }
 
