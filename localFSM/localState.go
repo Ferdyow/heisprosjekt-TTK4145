@@ -17,7 +17,7 @@ func acknowledgeOrder(button def.Button) {
 }
 
 // Accept an order and execute if the elevator is idle
-func AcceptOrder(motorDirCh chan<- def.MotorDirection, stuckTimerCh chan<- timerOption, doorResetCh chan<- bool, doorLightCh chan<- bool, order def.Button) {
+func acceptOrder(motorDirCh chan<- def.MotorDirection, stuckTimerCh chan<- timerOption, doorResetCh chan<- bool, doorLightCh chan<- bool, order def.Button) {
 	localState.AcceptedOrders[order.Floor][order.Type] = true
 
 	if localState.Floor == order.Floor && localState.Behaviour != def.MOVING {

@@ -14,12 +14,12 @@ import (
 var id string
 
 func Init() string {
-	SetId()
+	setId()
 	fmt.Println("Local id: ", id)
 	return id
 }
 
-func SetId() {
+func setId() {
 	//Set the elevator ID in terminal
 	//  `go run main.go -id "our_id"`
 	flag.StringVar(&id, "id", "", "id of this peer")

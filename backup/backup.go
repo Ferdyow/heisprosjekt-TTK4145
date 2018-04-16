@@ -14,24 +14,24 @@ import (
 )
 
 // Puts recovered orders on buttonPressedCh and backs up states when they are put on the channel
-func BackupManager(AllStatesCh <-chan def.States, buttonPressedCh chan<- def.Button) {
+func BackupManager(stateCh <-chan def.States, buttonPressedCh chan<- def.Button) {
 	Orders := recoverCabOrders()
 	for floor := 0; floor < def.NUMB_FLOORS; floor++ {
 		if Orders[floor] == 1 {
 			buttonPressedCh <- def.Button{floor, def.CAB}
 		}
 	}
-	backupCabOrders(AllStatesCh)
+	backupCabOrders(stateCh)
 }
 
 // Saves the cabRequests to the file backup.txt in the same directory as main.go
-func backupCabOrders(AllStatesCh <-chan def.States) {
+func backupCabOrders(stateCh <-chan def.States) {
 	var state def.States
 	var cabRequests [def.NUMB_FLOORS]int
 
 	for {
 		// Wait for state to be received
-		state = <-AllStatesCh
+		state = <-stateCh
 
 		// Create backup file in same directory
 		backupFile, err := os.Create("backup.txt")

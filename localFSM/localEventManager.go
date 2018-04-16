@@ -35,7 +35,7 @@ func EventManager(hallReqCh <-chan def.OrderStatus, acceptOrderCh <-chan def.But
 	for {
 		select {
 		case floor := <-floorSensorCh:
-			NewFloorReached(buttonLightCh, motorDirCh, doorLightCh, stuckTimerCh, isStuckCh, floor)
+			newFloorReached(buttonLightCh, motorDirCh, doorLightCh, stuckTimerCh, isStuckCh, floor)
 			if localState.Behaviour == def.DOOR_OPEN {
 				doorResetCh <- true
 			}
@@ -47,11 +47,11 @@ func EventManager(hallReqCh <-chan def.OrderStatus, acceptOrderCh <-chan def.But
 				doorResetCh <- true
 
 			} else {
-				NewOrderPlaced(buttonLightCh, motorDirCh, button, stuckTimerCh)
+				newOrderPlaced(buttonLightCh, motorDirCh, button, stuckTimerCh)
 			}
 
 		case <-doorTimedOutCh:
-			DoorTimerTimedOut(motorDirCh, doorLightCh, stuckTimerCh)
+			doorTimerTimedOut(motorDirCh, doorLightCh, stuckTimerCh)
 
 		case hallReq := <-hallReqCh:
 			// Update the hallrequest status with status from orderAssigner
@@ -59,7 +59,7 @@ func EventManager(hallReqCh <-chan def.OrderStatus, acceptOrderCh <-chan def.But
 
 		case order := <-acceptOrderCh:
 			// Accept hall request distributed by orderAssigner
-			AcceptOrder(motorDirCh, stuckTimerCh, doorResetCh, doorLightCh, order)
+			acceptOrder(motorDirCh, stuckTimerCh, doorResetCh, doorLightCh, order)
 
 		case <-ticker.C:
 			statesToNetworkCh <- localState
@@ -78,7 +78,7 @@ func EventManager(hallReqCh <-chan def.OrderStatus, acceptOrderCh <-chan def.But
 }
 
 // Treat orders at the floor it arrives at or keep going if there are no orders
-func NewFloorReached(buttonLightCh chan<- def.ButtonLight, motorDirCh chan<- def.MotorDirection,
+func newFloorReached(buttonLightCh chan<- def.ButtonLight, motorDirCh chan<- def.MotorDirection,
 	doorLightCh chan<- bool, stuckTimerCh chan<- timerOption, isStuckCh chan<- bool, floor int) {
 	if localState.Behaviour != def.MOVING {
 		return
@@ -118,7 +118,7 @@ func NewFloorReached(buttonLightCh chan<- def.ButtonLight, motorDirCh chan<- def
 }
 
 // Acknowledges the order and executes cab orders if the elevator is Idle
-func NewOrderPlaced(buttonLightCh chan<- def.ButtonLight, motorDirCh chan<- def.MotorDirection,
+func newOrderPlaced(buttonLightCh chan<- def.ButtonLight, motorDirCh chan<- def.MotorDirection,
 	button def.Button, stuckTimerCh chan<- timerOption) {
 	acknowledgeOrder(button)
 	if button.Type == def.CAB {
@@ -159,7 +159,7 @@ func elevatorStuck() {
 }
 
 // Close door and turn off light, execute next order
-func DoorTimerTimedOut(motorDirCh chan<- def.MotorDirection, doorLightCh chan<- bool, stuckTimerCh chan<- timerOption) {
+func doorTimerTimedOut(motorDirCh chan<- def.MotorDirection, doorLightCh chan<- bool, stuckTimerCh chan<- timerOption) {
 	if localState.Behaviour != def.DOOR_OPEN {
 		// In case of errors
 		return

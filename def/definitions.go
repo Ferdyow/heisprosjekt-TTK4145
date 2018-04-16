@@ -14,9 +14,8 @@ const (
 	//Ports used for TCP
 	ServerPort = "15657"
 	SimPort1   = "15555"
-	//SimPort1 = "11111"
-	SimPort2 = "15556"
-	SimPort3 = "15557"
+	SimPort2   = "15556"
+	SimPort3   = "15557"
 )
 
 const ELEVATOR_STUCK_DURATION = time.Second * 6

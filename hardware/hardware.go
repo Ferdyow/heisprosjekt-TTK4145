@@ -67,7 +67,7 @@ func setDoorOpenLamp(value bool) {
 	_conn.Write([]byte{4, toByte(value), 0, 0})
 }
 
-func PollButtons(receiver chan<- def.Button) {
+func pollButtons(receiver chan<- def.Button) {
 	prev := make([][3]bool, _numFloors)
 	for {
 		time.Sleep(_pollRate)
@@ -83,7 +83,7 @@ func PollButtons(receiver chan<- def.Button) {
 	}
 }
 
-func PollFloorSensor(receiver chan<- int, floorIndicatorCh chan<- int) {
+func pollFloorSensor(receiver chan<- int, floorIndicatorCh chan<- int) {
 	prev := -1
 	for {
 		time.Sleep(_pollRate)
@@ -138,8 +138,8 @@ func HardwareManager(buttonPressedCh chan<- def.Button, floorSensorCh chan<- int
 	motorDirectionCh <-chan def.MotorDirection, doorLightCh <-chan bool) {
 
 	floorIndicatorCh := make(chan int)
-	go PollFloorSensor(floorSensorCh, floorIndicatorCh)
-	go PollButtons(buttonPressedCh)
+	go pollFloorSensor(floorSensorCh, floorIndicatorCh)
+	go pollButtons(buttonPressedCh)
 
 	for {
 		select {

@@ -26,7 +26,7 @@ func requestBelow(state def.States) bool {
 	return false
 }
 
-//Stop if there is an order in the current direction,cab order or if there are no more orders in the same direction
+//Stop if there is an order in the current direction, cab order or if there are no more orders in the same direction
 func ShouldStop(state def.States) bool {
 	switch state.Direction {
 	case def.DOWN:
