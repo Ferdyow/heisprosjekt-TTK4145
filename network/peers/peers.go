@@ -1,11 +1,12 @@
 package peers
 
 import (
-	"../conn"
 	"fmt"
 	"net"
 	"sort"
 	"time"
+
+	"../conn"
 )
 
 type PeerUpdate struct {
@@ -17,6 +18,7 @@ type PeerUpdate struct {
 const interval = 15 * time.Millisecond
 const timeout = 50 * time.Millisecond
 
+// send Peerupdates every 15 milliseconds
 func Transmitter(port int, id string, transmitEnable <-chan bool) {
 
 	conn := conn.DialBroadcastUDP(port)

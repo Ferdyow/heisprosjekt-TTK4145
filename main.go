@@ -1,74 +1,83 @@
 package main
 
 import (
-	"./elevio"
-	"./states"
-	"./network"
-	"./network/bcast"
-	//"./network/localip"
-	"./network/peers"
-	"fmt"
+	"time"
+
+	"./backup"
 	"./def"
+	"./externalFSM"
+	"./hardware"
+	"./localFSM"
+	"./network"
+	"./network/peers"
+	"./orderAssigner"
 )
 
-
-func main() {
-	fmt.Println("Hello")
-
+// Sets the hardware to a valid position, gives the elevator an ID and sends the position to localFSM
+func initialize(floorSensorCh chan<- int) (string, int) {
+	// initialize local elevator
 	//Initialize the hardware and ID
 	id := network.Init()
-	states.Init(id)
-	elevio.Init("localhost:15657", def.NUMB_FLOOR)
 
-	var dir elevio.MotorDirection = elevio.MD_Up
-	fmt.Println("direction: ", dir)
+	// Switch between:
+	// def.ServerPort
+	// def.SimPort1,2,3
+	initialFloor := hardware.Init("localhost:"+string(def.ServerPort), def.NUMB_FLOORS)
+	return id, initialFloor
+}
 
-	//Make a channel to send states to the network
-	statesToNetwork := make(chan states.States)
-	
-	go states.SendStatesOnInterval(statesToNetwork) // Puts states on the channel 
-	go bcast.Transmitter(20014, statesToNetwork) //send states when they are received on channel
+func main() {
+	statesToBackupCh := make(chan def.States)
 
+	/********************************NETWORK CHANNELS********************************/
+	// Channels for sending and receiving elevator states
+	statesToNetworkCh := make(chan def.States)
+	stateRecCh := make(chan def.States)
 
-
-	ButtonPressedCh := make(chan elevio.ButtonEvent)
-	go elevio.PollButtons(ButtonPressedCh)
-
-
-	// We make a channel for receiving updates on the id's of the peers that are
+	// Channel for receiving updates on the id's of the peers that are
 	//  alive on the network
 	peerUpdateCh := make(chan peers.PeerUpdate)
-	go peers.Receiver(30014, peerUpdateCh)
-	go states.ManagePeers(peerUpdateCh) //Update peers when an update is received
 
 	// We can disable/enable the transmitter after it has been started.
-	// This could be used to signal that we are somehow "unavailable".
+	// This could be used to signal that we are somehow "unavailable"
 	peerTransmitEnable := make(chan bool)
-	go peers.Transmitter(30014, id, peerTransmitEnable)
-	
-	
+	/*******************************************************************************/
 
-	
+	/*******************************HARDWARE CHANNELS*******************************/
+	buttonPressedCh := make(chan def.Button)
+	floorSensorCh := make(chan int)
+	buttonLightCh := make(chan def.ButtonLight)
+	motorDirectionCh := make(chan def.MotorDirection)
+	doorLightCh := make(chan bool)
+	/*******************************************************************************/
 
-	// We make channels for sending and receiving our custom data types
-	stateRecCh := make(chan states.States)
-	// ... and start the transmitter/receiver pair on some port
-	// These functions can take any number of channels! It is also possible to
-	//  start multiple transmitters/receivers on the same port.
-	go bcast.Transmitter(20014, statesToNetwork)
-	go bcast.Receiver(20014, stateRecCh)
+	// Channel that sends hall requests to be accepted by the local elevator from the order assigner to localFSM
+	acceptOrderCh := make(chan def.Button)
 
-	go states.UpdateExternalState(stateRecCh)
+	// Channel that sends the status of hall requests to localFSM from the order assigner
+	hallReqCh := make(chan def.OrderStatus)
+
+	// Channels that send the local and external states to the order assigner
+	statesToOrderAssignerCh := make(chan def.States)
+	externalStatesCh := make(chan map[string]def.States)
+
+	id, initialFloor := initialize(floorSensorCh)
+
+	// Each module runs its own eventmanager, the only thing done in main is creating channels
+	// that allow communication between different modules
+	go backup.BackupManager(statesToBackupCh, buttonPressedCh)
+	go externalFSM.ExternalStateManager(externalStatesCh, stateRecCh, peerUpdateCh, id)
+	go network.NetworkManager(statesToNetworkCh, stateRecCh, peerUpdateCh, peerTransmitEnable)
+	go hardware.HardwareManager(buttonPressedCh, floorSensorCh, buttonLightCh, motorDirectionCh, doorLightCh)
+	go orderAssigner.OrderManager(statesToOrderAssignerCh, externalStatesCh, hallReqCh, acceptOrderCh, buttonLightCh)
+
+	go localFSM.EventManager(hallReqCh, acceptOrderCh,
+		statesToNetworkCh, statesToBackupCh, statesToOrderAssignerCh,
+		floorSensorCh, buttonPressedCh, buttonLightCh,
+		motorDirectionCh, doorLightCh, id, initialFloor)
 
 	for {
-		select {
-		case button := <-ButtonPressedCh:
-			states.UpdateButtonState(button)
-			//stateTransCh <- states.CurrState
-			elevio.SetButtonLamp(button.Button, button.Floor, true) //don't do this here later
-
-		//case externalState := <-stateRecCh:
-			//fmt.Println("RECEIVED UPDATE: ", externalState)
-		}
+		time.Sleep(1 * time.Second)
 	}
+
 }
