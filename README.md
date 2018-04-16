@@ -1,11 +1,11 @@
 # Elevator Project
 # Saving of states
-every elevator has a state struct for itself, as well as an externalStateMap that contain the complete states of all participating elevators. The local struct together with the external state map are used together to distribute hall requests. Each elevator can see if another elevator has accepted an order, it is therefore simple to check if an order needs to be reassigned in case elevators lose network or get stuck. 
+Every elevator has a state struct for itself, as well as an externalStateMap that contain the complete states of all participating elevators. The local struct together with the external state map are used together to distribute hall requests. Each elevator can see if another elevator has accepted an order, it is therefore simple to check if an order needs to be reassigned in case elevators lose network or get stuck. 
 Hall requests are synchronized using the following table: 
-- 0	 -	No order		
-- 1	 -	order acknowledged	
-- all 1 -	an elevator should accept order		
-- 2	 -	order finished	
+- 0	    -	No order		
+- 1	    -	Order acknowledged	
+- all 1 -	An elevator should accept order		
+- 2	    -	Order finished	
 The algorithm increments all of the elevators hall requests to 1 if one elevator has acknowledged an order. When all have acknowledged, one elevator accepts it. When an order has been finished by an elevator, that elevator sets its orderstatus to 2, which the others detect and will update to. When all have status 2, the order is cleared.
 
 # Network interface
