@@ -30,8 +30,6 @@ func EventManager(hallReqCh <-chan def.OrderStatus, acceptOrderCh <-chan def.But
 	// Ticker to send states at regular interval
 	ticker := time.NewTicker(def.STATE_TRANSMIT_INTERVAL)
 
-	/* For Printing/Debugging */
-	ticker2 := time.NewTicker(1 * time.Second)
 	for {
 		select {
 		case floor := <-floorSensorCh:
@@ -65,9 +63,6 @@ func EventManager(hallReqCh <-chan def.OrderStatus, acceptOrderCh <-chan def.But
 			statesToNetworkCh <- localState
 			statesToBackupCh <- localState
 			statesToOrderAssignerCh <- localState
-		case <-ticker2.C:
-			// For testing purposes
-			go printStatus(localState)
 		case <-isStuckCh:
 			elevatorStuck()
 
