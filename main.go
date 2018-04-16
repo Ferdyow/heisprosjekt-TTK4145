@@ -22,7 +22,7 @@ func initialize(floorSensorCh chan<- int) (string, int) {
 	// Switch between:
 	// def.ServerPort
 	// def.SimPort1,2,3
-	initialFloor := hardware.Init("localhost:"+string(def.SimPort1), def.NUMB_FLOORS)
+	initialFloor := hardware.Init("localhost:"+string(def.ServerPort), def.NUMB_FLOORS)
 	return id, initialFloor
 }
 
