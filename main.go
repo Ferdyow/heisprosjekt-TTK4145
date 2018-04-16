@@ -5,7 +5,7 @@ import (
 
 	"./backup"
 	"./def"
-	"./externalFSM"
+	"./externalStates"
 	"./hardware"
 	"./localFSM"
 	"./network"
@@ -55,7 +55,7 @@ func main() {
 	acceptOrderCh := make(chan def.Button)
 
 	// Channel that sends the status of hall requests to localFSM from the order assigner
-	hallReqCh := make(chan def.OrderStatus)
+	updateHallReqCh := make(chan def.OrderStatus)
 
 	// Channels that send the local and external states to the order assigner
 	statesToOrderAssignerCh := make(chan def.States)
@@ -66,12 +66,12 @@ func main() {
 	// Each module runs its own eventmanager, the only thing done in main is creating channels
 	// that allow communication between different modules
 	go backup.BackupManager(statesToBackupCh, buttonPressedCh)
-	go externalFSM.ExternalStateManager(externalStatesCh, stateRecCh, peerUpdateCh, id)
+	go externalStates.ExternalStateManager(externalStatesCh, stateRecCh, peerUpdateCh, id)
 	go network.NetworkManager(statesToNetworkCh, stateRecCh, peerUpdateCh, peerTransmitEnable)
 	go hardware.HardwareManager(buttonPressedCh, floorSensorCh, buttonLightCh, motorDirectionCh, doorLightCh)
-	go orderAssigner.OrderManager(statesToOrderAssignerCh, externalStatesCh, hallReqCh, acceptOrderCh, buttonLightCh)
+	go orderAssigner.OrderManager(statesToOrderAssignerCh, externalStatesCh, updateHallReqCh, acceptOrderCh, buttonLightCh)
 
-	go localFSM.EventManager(hallReqCh, acceptOrderCh,
+	go localFSM.EventManager(updateHallReqCh, acceptOrderCh,
 		statesToNetworkCh, statesToBackupCh, statesToOrderAssignerCh,
 		floorSensorCh, buttonPressedCh, buttonLightCh,
 		motorDirectionCh, doorLightCh, id, initialFloor)

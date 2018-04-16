@@ -1,4 +1,4 @@
-package externalFSM
+package externalStates
 
 import (
 	"time"
